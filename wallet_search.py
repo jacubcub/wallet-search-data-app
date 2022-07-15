@@ -5,11 +5,13 @@ from subgrounds.subgrounds import Subgrounds
 import utils
 from string import Template
 
+st.set_page_config(layout="wide")
+
 # State Initialization
 if 'results_df' not in st.session_state:
-    st.session_state['results_df'] = 'Try Searching!'
+    st.session_state['results_df'] = pd.DataFrame()
 
-# aave v2 schema is different from standard lending schema and doesn't have liquidatee which we need
+# aave v2 schema is different from standard lending schema
 # however, standard lending schema does not have accounts so we can't see which user made a deposit for example
 # let's use extended schema so we can use positions
 # deployments = utils.get_deployments()
@@ -26,19 +28,27 @@ def get_initial_data():
 open_positions_df = get_initial_data()
 
 def submit_callback():
-    st.write("in callback", st.session_state.asset_quantity_input, st.session_state.asset_select_input)
-    filtered_df = open_positions_df[(open_positions_df["balance_adj"] > st.session_state.asset_quantity_input) & (open_positions_df["market.inputToken.symbol"] == st.session_state.asset_select_input)]    
+    position_side = "LENDER" if st.session_state.user_action_select_input == "Deposited" else "BORROWER"
+    filtered_df = open_positions_df[(open_positions_df["balance_adj"] > st.session_state.asset_quantity_input) 
+                                    & (open_positions_df["market.inputToken.symbol"] == st.session_state.asset_select_input)
+                                    & (open_positions_df["side"] == position_side)]    
     display_results = filtered_df[["account_id", "balance_adj", "market.inputToken.symbol", "balance_usd"]].copy()
     st.session_state["results_df"] = display_results
 
 
 with st.form("search_filter_form"):
-    st.write("Wallet Filter Form")
-    asset_quanity = st.number_input("Asset Quantity", value=100, min_value=0, key="asset_quantity_input")
-    asset_select = st.selectbox("Asset", ["WBTC.e", "AAVE.e", "USDC.e", "USDT.e", "WAVAX", "DAI.e", "WETH.e"], key="asset_select_input")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        user_action_select = st.selectbox("Users that have:", ["Deposited", "Borrowed"], key="user_action_select_input")
+    with col2:
+        asset_quanity = st.number_input("More than:", value=100, min_value=0, key="asset_quantity_input")
+    with col3:
+        asset_select = st.selectbox("Of this asset:", ["WBTC.e", "AAVE.e", "USDC.e", "USDT.e", "WAVAX", "DAI.e", "WETH.e"], key="asset_select_input")
     submitted = st.form_submit_button("Search", on_click=submit_callback)
-    if submitted:
-        st.write("Searching for wallets with more than", asset_quanity, asset_select)
+    
 
+if submitted:
+    st.write("Showing wallets with more than", asset_quanity, asset_select)
 
-st.write(st.session_state["results_df"])
+if not st.session_state["results_df"].empty:
+    st.write(st.session_state["results_df"])
