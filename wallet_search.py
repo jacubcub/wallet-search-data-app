@@ -52,6 +52,7 @@ with st.form("search_filter_form"):
     with col2:
         asset_quanity = st.number_input("More than:", value=100, min_value=0, key="asset_quantity_input")
     with col3:
+        # TODO dynamically populate market token symbols
         asset_select = st.selectbox("Of this asset:", ["WBTC.e", "AAVE.e", "USDC.e", "USDT.e", "WAVAX", "DAI.e", "WETH.e"], key="asset_select_input")
     submitted = st.form_submit_button("Search", on_click=submit_callback)
     
