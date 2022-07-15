@@ -6,6 +6,8 @@ import utils
 from string import Template
 
 st.set_page_config(layout="wide")
+st.title("🔍 Wallet Search")
+st.text("AAVE V2 on Avalanche")
 
 # State Initialization
 if 'results_df' not in st.session_state:
@@ -40,6 +42,7 @@ def submit_callback():
                                     & (open_positions_df["side"] == position_side)]    
     display_results = filtered_df[["account_id", "balance_adj", "market.inputToken.symbol", "balance_usd"]].copy()
     display_results.sort_values("balance_adj", ascending=False, inplace=True)
+    display_results["balance_adj"] = display_results["balance_adj"].apply(lambda x: "{:,.1f}".format(x))
     display_results["balance_usd"] = display_results["balance_usd"].apply(lambda x: "${:,.2f}".format(x))
     display_results.rename(columns={"account_id": "ADDRESS", "balance_adj": position_side_column_label, "market.inputToken.symbol": "ASSET", "balance_usd": "VALUE"}, inplace=True)
     st.session_state["results_df"] = display_results
