@@ -19,7 +19,7 @@ url = "https://api.thegraph.com/subgraphs/name/messari/aave-v2-avalanche-extende
 sg = Subgrounds()
 lending = sg.load_subgraph(url)
 
-st.experimental_memo()
+@st.experimental_memo
 def get_initial_data():
     return utils.get_all_open_positions(url)
 
