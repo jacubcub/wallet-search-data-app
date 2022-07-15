@@ -5,7 +5,7 @@ from subgrounds.subgrounds import Subgrounds
 import utils
 from string import Template
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Wallet Search", page_icon="🔍", layout="wide")
 st.title("🔍 Wallet Search")
 st.text("AAVE V2 on Avalanche")
 
@@ -65,3 +65,6 @@ if submitted:
 
 if not st.session_state["results_df"].empty:
     st.dataframe(st.session_state["results_df"])
+
+if st.button("Clear Cache (Your next search may take a few minutes to re-pull data)"):
+    get_initial_data.clear()
